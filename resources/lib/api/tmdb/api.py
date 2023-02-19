@@ -9,6 +9,7 @@ from resources.lib.items.pages import PaginatedItems
 from resources.lib.api.request import RequestAPI
 from resources.lib.api.tmdb.mapping import ItemMapper, get_episode_to_air
 from urllib.parse import quote_plus
+from resources.lib.api.api_keys.tmdb import API_KEY
 
 """ Lazyimports
 from resources.lib.items.listitem import ListItem
@@ -24,11 +25,16 @@ APPEND_TO_RESPONSE = 'credits,images,release_dates,content_ratings,external_ids,
 
 
 class TMDb(RequestAPI):
+
+    api_key = API_KEY
+
     def __init__(
             self,
-            api_key='a07324c669cac4d96789197134ce272b',
+            api_key=None,
             language=get_language(),
             mpaa_prefix=get_mpaa_prefix()):
+        api_key = api_key or self.api_key
+
         super(TMDb, self).__init__(
             req_api_name='TMDb',
             req_api_url=API_URL,
@@ -43,6 +49,7 @@ class TMDb(RequestAPI):
         self.req_strip += [(self.append_to_response, ''), (self.req_language, f'{self.iso_language}{"_en" if ARTLANG_FALLBACK else ""}')]
         self.genres = self.get_genres()
         self.mapper = ItemMapper(self.language, self.mpaa_prefix, self.genres)
+        TMDb.api_key = api_key
 
     def get_genres(self):
 
