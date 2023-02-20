@@ -1,14 +1,15 @@
 import sys
 
+
 class _Finder:
     from importlib.util import find_spec as _find_spec
 
     class SysPathLoader:
         from xbmcaddon import Addon as _Addon
 
-        def __init__(self, addon_id):
+        def __init__(self, addon_id, path_affix=None):
             self._loaded = False
-            self._path = self._Addon(addon_id).getAddonInfo('path')
+            self._path = f"{self._Addon(addon_id).getAddonInfo('path')}{path_affix}"
 
         def __enter__(self):
             if self._path in sys.path:
@@ -21,8 +22,8 @@ class _Finder:
             if self._loaded:
                 sys.path.remove(self._path)
 
-    basename = 'resources.lib'
-    sys_path_loader = SysPathLoader('plugin.video.themoviedb.helper')
+    basename = 'tmdbhelper.lib'
+    sys_path_loader = SysPathLoader('plugin.video.themoviedb.helper', 'resources')
 
     @classmethod
     def find_spec(cls, fullname, path, target=None):
@@ -43,6 +44,6 @@ class _Finder:
 
 
 with _Finder.sys_path_loader:
-    from resources.lib.addon.permissions import __access__
+    from tmdbhelper.lib.addon.permissions import __access__
 
 sys.meta_path.insert(0, _Finder)
